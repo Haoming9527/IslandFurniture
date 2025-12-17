@@ -1,256 +1,524 @@
-<script src="../checkCountry.js" ></script>
+<script src="../checkCountry.js"></script>
 <html>
-    <script src="../../header.js"></script>
-    <body>
-        <div class="body">
-            <script src="menu2.js"></script>
-            <div role="main" class="main">
-                <section class="page-top">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h2>Showroom</h2>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+<script src="../../header.js"></script>
+
+<body>
+    <div class="body">
+        <script src="menu2.js"></script>
+        <div role="main" class="main">
+            <section class="page-top">
                 <div class="container">
                     <div class="row">
                         <div class="col-md-12">
-                            <h2>Explore Our <strong>Styled Rooms</strong></h2>
-                            <p class="lead">Visualize furniture in realistic room settings to help you design your perfect space.</p>
+                            <h2>Showroom</h2>
                         </div>
                     </div>
+                </div>
+            </section>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2>Explore Our <strong>Styled Rooms</strong></h2>
+                        <p class="lead">Visualize furniture in realistic room settings to help you design your perfect
+                            space.</p>
+                    </div>
+                </div>
 
-                    <hr class="tall" />
+                <hr class="tall" />
 
-                    <style>
-                        /* The grid: Four equal columns using flexbox */
-                        .gallery-row {
-                            display: flex;
-                            flex-wrap: wrap;
-                            margin: 0 -10px;
-                        }
+                <style>
+                    /* The grid: Four equal columns using flexbox */
+                    .gallery-row {
+                        display: flex;
+                        flex-wrap: wrap;
+                        margin: 0 -10px;
+                    }
 
+                    .column {
+                        flex: 25%;
+                        max-width: 25%;
+                        padding: 10px;
+                        box-sizing: border-box;
+                        display: none;
+                        /* Hidden by default for filtering */
+                    }
+
+                    /* The "show" class is added to the filtered elements */
+                    .show {
+                        display: block;
+                    }
+
+                    /* Responsive layout - makes a two column-layout instead of four columns */
+                    @media screen and (max-width: 800px) {
                         .column {
-                            flex: 25%;
-                            max-width: 25%;
-                            padding: 10px;
-                            box-sizing: border-box;
-                            display: none; /* Hidden by default for filtering */
+                            flex: 50%;
+                            max-width: 50%;
+                        }
+                    }
+
+                    /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+                    @media screen and (max-width: 600px) {
+                        .column {
+                            flex: 100%;
+                            max-width: 100%;
+                        }
+                    }
+
+                    /* Style the images inside the grid */
+                    .gallery-img {
+                        opacity: 0.8;
+                        cursor: pointer;
+                        width: 100% !important;
+                        height: 250px !important;
+                        /* Fixed height for uniformity */
+                        object-fit: cover !important;
+                        /* Crop to fit */
+                        border-radius: 8px;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                        display: block;
+                    }
+
+                    .gallery-img:hover {
+                        opacity: 1;
+                        transform: translateY(-5px);
+                        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+                    }
+
+                    /* The expanding image container */
+                    .container-gallery {
+                        position: relative;
+                        display: none;
+                        margin-top: 20px;
+                        border-radius: 8px;
+                        overflow: hidden;
+                        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+                    }
+
+                    /* Style the expanded image */
+                    #expandedImg {
+                        width: 100%;
+                        height: 800px;
+                        /* Fixed height for the expanded view */
+                        object-fit: cover;
+                        display: block;
+                    }
+
+                    /* Expanding image text */
+                    #imgtext {
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        width: 100%;
+                        color: white;
+                        font-size: 20px;
+                        background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+                        padding: 20px;
+                        text-align: left;
+                    }
+
+                    /* Closable button inside the expanded image */
+                    .closebtn {
+                        position: absolute;
+                        top: 15px;
+                        right: 15px;
+                        color: white;
+                        font-size: 35px;
+                        cursor: pointer;
+                        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+                        transition: color 0.2s;
+                        z-index: 10;
+                    }
+
+                    .closebtn:hover {
+                        color: #ddd;
+                    }
+
+                    /* Style the buttons */
+                    .btn-container {
+                        text-align: center;
+                        margin-bottom: 20px;
+                    }
+
+                    .btn {
+                        border: none;
+                        outline: none;
+                        padding: 12px 16px;
+                        background-color: #f1f1f1;
+                        cursor: pointer;
+                        border-radius: 5px;
+                        margin: 5px;
+                        transition: background-color 0.3s;
+                    }
+
+                    .btn:hover {
+                        background-color: #ddd;
+                    }
+
+                    .btn.active {
+                        background-color: #666;
+                        color: white;
+                    }
+
+                    /* Hotspot Container */
+                    #hotspotContainer {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        pointer-events: none;
+                        z-index: 20;
+                    }
+
+                    /* Hotspot Styles */
+                    .hotspot {
+                        position: absolute;
+                        width: 20px;
+                        height: 20px;
+                        background-color: rgba(255, 255, 255, 0.8);
+                        border: 2px solid #333;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        z-index: 100;
+                        transform: translate(-50%, -50%);
+                        /* Center on coordinates */
+                        animation: pulse 2s infinite;
+                    }
+
+                    .hotspot::after {
+                        content: '+';
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -52%);
+                        font-weight: bold;
+                        color: #333;
+                    }
+
+                    @keyframes pulse {
+                        0% {
+                            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
                         }
 
-                        /* The "show" class is added to the filtered elements */
-                        .show {
-                            display: block;
+                        70% {
+                            box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
                         }
 
-                        /* Responsive layout - makes a two column-layout instead of four columns */
-                        @media screen and (max-width: 800px) {
-                            .column {
-                                flex: 50%;
-                                max-width: 50%;
-                            }
+                        100% {
+                            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
                         }
+                    }
 
-                        /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
-                        @media screen and (max-width: 600px) {
-                            .column {
-                                flex: 100%;
-                                max-width: 100%;
-                            }
-                        }
-                        
-                        /* Style the images inside the grid */
-                        .gallery-img {
-                            opacity: 0.8; 
-                            cursor: pointer; 
-                            width: 100% !important;
-                            height: 250px !important; /* Fixed height for uniformity */
-                            object-fit: cover !important; /* Crop to fit */
-                            border-radius: 8px;
-                            transition: all 0.3s ease;
-                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                            display: block;
-                        }
-                        
-                        .gallery-img:hover {
-                            opacity: 1;
-                            transform: translateY(-5px);
-                            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-                        }
-                        
-                        /* The expanding image container */
-                        .container-gallery {
-                            position: relative;
-                            display: none;
-                            margin-top: 20px;
-                            border-radius: 8px;
-                            overflow: hidden;
-                            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-                        }
+                    /* Tooltip Styles */
+                    .product-tooltip {
+                        position: absolute;
+                        bottom: 140%;
+                        /* Position above hotspot */
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 220px;
+                        background-color: white;
+                        border-radius: 8px;
+                        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                        padding: 15px;
+                        opacity: 0;
+                        visibility: hidden;
+                        transition: all 0.3s ease;
+                        pointer-events: none;
+                        z-index: 101;
+                        text-align: left;
+                        color: #333;
+                        font-family: 'Open Sans', sans-serif;
+                    }
 
-                        /* Style the expanded image */
-                        #expandedImg {
-                            width: 100%;
-                            height: 800px; /* Fixed height for the expanded view */
-                            object-fit: cover;
-                            display: block;
-                        }
-                        
-                        /* Expanding image text */
-                        #imgtext {
-                            position: absolute;
-                            bottom: 0;
-                            left: 0;
-                            width: 100%;
-                            color: white;
-                            font-size: 20px;
-                            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-                            padding: 20px;
-                            text-align: left;
-                        }
-                        
-                        /* Closable button inside the expanded image */
-                        .closebtn {
-                            position: absolute;
-                            top: 15px;
-                            right: 15px;
-                            color: white;
-                            font-size: 35px;
-                            cursor: pointer;
-                            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-                            transition: color 0.2s;
-                            z-index: 10;
-                        }
+                    .product-tooltip::after {
+                        content: '';
+                        position: absolute;
+                        top: 100%;
+                        left: 50%;
+                        margin-left: -8px;
+                        border-width: 8px;
+                        border-style: solid;
+                        border-color: white transparent transparent transparent;
+                    }
 
-                        .closebtn:hover {
-                            color: #ddd;
-                        }
+                    .hotspot:hover .product-tooltip {
+                        opacity: 1;
+                        visibility: visible;
+                        bottom: 120%;
+                        /* Slight movement effect */
+                    }
 
-                        /* Style the buttons */
-                        .btn-container {
-                            text-align: center;
-                            margin-bottom: 20px;
-                        }
-                        
-                        .btn {
-                            border: none;
-                            outline: none;
-                            padding: 12px 16px;
-                            background-color: #f1f1f1;
-                            cursor: pointer;
-                            border-radius: 5px;
-                            margin: 5px;
-                            transition: background-color 0.3s;
-                        }
-                        
-                        .btn:hover {
-                            background-color: #ddd;
-                        }
-                        
-                        .btn.active {
-                            background-color: #666;
-                            color: white;
-                        }
-                    </style>
+                    .tooltip-title {
+                        font-weight: bold;
+                        font-size: 14px;
+                        margin-bottom: 5px;
+                        display: block;
+                        color: #0088cc;
+                    }
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div style="text-align:center; margin-bottom: 30px;">
-                                <h2>Showroom Gallery</h2>
-                                <p>Click on the images below to explore our room concepts:</p>
+                    .tooltip-price {
+                        font-weight: bold;
+                        color: #333;
+                        font-size: 16px;
+                        margin-bottom: 5px;
+                        display: block;
+                    }
+
+                    .tooltip-desc {
+                        font-size: 12px;
+                        color: #777;
+                        line-height: 1.4;
+                        display: block;
+                        margin-bottom: 8px;
+                    }
+
+                    .tooltip-sku {
+                        font-size: 10px;
+                        color: #999;
+                        text-transform: uppercase;
+                    }
+                </style>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div style="text-align:center; margin-bottom: 30px;">
+                            <h2>Showroom Gallery</h2>
+                            <p>Click on the images below to explore our room concepts:</p>
+                        </div>
+
+                        <div id="myBtnContainer" class="btn-container">
+                            <button class="btn active" onclick="filterSelection('all')"> Show all</button>
+                            <button class="btn" onclick="filterSelection('living')"> Living Room</button>
+                            <button class="btn" onclick="filterSelection('bedroom')"> Bedroom</button>
+                            <button class="btn" onclick="filterSelection('kitchen')"> Kitchen</button>
+                            <button class="btn" onclick="filterSelection('study')"> Study Room</button>
+                        </div>
+                        <div class="gallery-row">
+                            <div class="column filterDiv living">
+                                <img class="gallery-img" src="../../img/showroom/living_room.jpg" alt="Living Room"
+                                    onclick="myFunction(this);">
                             </div>
-
-                            <div id="myBtnContainer" class="btn-container">
-                                <button class="btn active" onclick="filterSelection('all')"> Show all</button>
-                                <button class="btn" onclick="filterSelection('living')"> Living Room</button>
-                                <button class="btn" onclick="filterSelection('bedroom')"> Bedroom</button>
-                                <button class="btn" onclick="filterSelection('kitchen')"> Kitchen</button>
-                                <button class="btn" onclick="filterSelection('study')"> Study Room</button>
+                            <div class="column filterDiv bedroom">
+                                <img class="gallery-img" src="../../img/showroom/bedroom.jpg" alt="Bedroom"
+                                    onclick="myFunction(this);">
                             </div>
-                            <div class="gallery-row">
-                                <div class="column filterDiv living">
-                                <img class="gallery-img" src="../../img/showroom/living_room.jpg" alt="Living Room" onclick="myFunction(this);">
-                                </div>
-                                <div class="column filterDiv bedroom">
-                                <img class="gallery-img" src="../../img/showroom/bedroom.jpg" alt="Bedroom" onclick="myFunction(this);">
-                                </div>
-                                <div class="column filterDiv kitchen">
-                                <img class="gallery-img" src="../../img/showroom/kitchen.jpg" alt="Kitchen" onclick="myFunction(this);">
-                                </div>
-                                <div class="column filterDiv study">
-                                <img class="gallery-img" src="../../img/showroom/study_room.jpg" alt="Study Room" onclick="myFunction(this);">
-                                </div>
+                            <div class="column filterDiv kitchen">
+                                <img class="gallery-img" src="../../img/showroom/kitchen.jpg" alt="Kitchen"
+                                    onclick="myFunction(this);">
                             </div>
-                            <div class="container-gallery">
-                                <span onclick="this.parentElement.style.display='none'" class="closebtn">&times;</span>
-                                <img id="expandedImg">
-                                <div id="imgtext"></div>
+                            <div class="column filterDiv study">
+                                <img class="gallery-img" src="../../img/showroom/study_room.jpg" alt="Study Room"
+                                    onclick="myFunction(this);">
                             </div>
                         </div>
+                        <div class="container-gallery">
+                            <span onclick="this.parentElement.style.display='none'" class="closebtn">&times;</span>
+                            <img id="expandedImg">
+                            <div id="hotspotContainer"></div>
+                            <div id="imgtext"></div>
+                        </div>
                     </div>
+                </div>
 
-                    <script>
+                <script>
                     filterSelection("all")
                     function filterSelection(c) {
-                      var x, i;
-                      x = document.getElementsByClassName("column");
-                      if (c == "all") c = "";
-                      for (i = 0; i < x.length; i++) {
-                        RemoveClass(x[i], "show");
-                        if (x[i].className.indexOf(c) > -1) AddClass(x[i], "show");
-                      }
-                      var container = document.querySelector(".container-gallery");
-                      if (container) {
-                        container.style.display = "none";
-                      }
-                    }
-                    
-                    function AddClass(element, name) {
-                      var i, arr1, arr2;
-                      arr1 = element.className.split(" ");
-                      arr2 = name.split(" ");
-                      for (i = 0; i < arr2.length; i++) {
-                        if (arr1.indexOf(arr2[i]) == -1) {element.className += " " + arr2[i];}
-                      }
-                    }
-                    
-                    function RemoveClass(element, name) {
-                      var i, arr1, arr2;
-                      arr1 = element.className.split(" ");
-                      arr2 = name.split(" ");
-                      for (i = 0; i < arr2.length; i++) {
-                        while (arr1.indexOf(arr2[i]) > -1) {
-                          arr1.splice(arr1.indexOf(arr2[i]), 1);     
+                        var x, i;
+                        x = document.getElementsByClassName("column");
+                        if (c == "all") c = "";
+                        for (i = 0; i < x.length; i++) {
+                            RemoveClass(x[i], "show");
+                            if (x[i].className.indexOf(c) > -1) AddClass(x[i], "show");
                         }
-                      }
-                      element.className = arr1.join(" ");
+                        var container = document.querySelector(".container-gallery");
+                        if (container) {
+                            container.style.display = "none";
+                        }
                     }
-                    
+
+                    function AddClass(element, name) {
+                        var i, arr1, arr2;
+                        arr1 = element.className.split(" ");
+                        arr2 = name.split(" ");
+                        for (i = 0; i < arr2.length; i++) {
+                            if (arr1.indexOf(arr2[i]) == -1) { element.className += " " + arr2[i]; }
+                        }
+                    }
+
+                    function RemoveClass(element, name) {
+                        var i, arr1, arr2;
+                        arr1 = element.className.split(" ");
+                        arr2 = name.split(" ");
+                        for (i = 0; i < arr2.length; i++) {
+                            while (arr1.indexOf(arr2[i]) > -1) {
+                                arr1.splice(arr1.indexOf(arr2[i]), 1);
+                            }
+                        }
+                        element.className = arr1.join(" ");
+                    }
+
                     var btnContainer = document.getElementById("myBtnContainer");
                     var btns = btnContainer.getElementsByClassName("btn");
                     for (var i = 0; i < btns.length; i++) {
-                      btns[i].addEventListener("click", function(){
-                        var current = document.getElementsByClassName("active");
-                        current[0].className = current[0].className.replace(" active", "");
-                        this.className += " active";
-                      });
+                        btns[i].addEventListener("click", function () {
+                            var current = document.getElementsByClassName("active");
+                            current[0].className = current[0].className.replace(" active", "");
+                            this.className += " active";
+                        });
                     }
 
                     function myFunction(imgs) {
-                      var expandImg = document.getElementById("expandedImg");
-                      var imgText = document.getElementById("imgtext");
-                      expandImg.src = imgs.src;
-                      imgText.innerHTML = imgs.alt;
-                      expandImg.parentElement.style.display = "block";
-                    }
-                    </script>
+                        var expandImg = document.getElementById("expandedImg");
+                        var imgText = document.getElementById("imgtext");
+                        var hotspotContainer = document.getElementById("hotspotContainer");
 
-                    <hr class="tall" />
-                </div>
+                        expandImg.src = imgs.src;
+                        imgText.innerHTML = imgs.alt;
+                        expandImg.parentElement.style.display = "block";
+
+                        // Clear previous hotspots
+                        hotspotContainer.innerHTML = '';
+
+                        // Load hotspots based on category
+                        loadHotspots(imgs.alt);
+                    }
+
+                    function loadHotspots(category) {
+                        var countryId = localStorage.getItem('countryId') || '1'; // Default to 1 if not set
+
+                        // Map room names to API categories
+                        var apiCategory = 'Sofas & Chair'; // Default
+
+                        if (category.toLowerCase().indexOf("living") > -1) {
+                            apiCategory = 'Sofas & Chair';
+                        } else if (category.toLowerCase().indexOf("bedroom") > -1) {
+                            apiCategory = 'Beds & Mattresses';
+                        } else if (category.toLowerCase().indexOf("kitchen") > -1) {
+                            apiCategory = 'Cabinets & Storage';
+                        } else if (category.toLowerCase().indexOf("study") > -1) {
+                            apiCategory = 'Study';
+                        }
+
+                        // console.log("Fetching furniture for cat: " + apiCategory);
+
+                        fetch('/api/getFurnitureByCat?cat=' + encodeURIComponent(apiCategory) + '&countryId=' + countryId)
+                            .then(function (response) {
+                                return response.json();
+                            })
+                            .then(function (data) {
+                                if (data && data.length > 0) {
+                                    // Filter products based on room requirements
+                                    var filteredData = data.filter(function (product) {
+                                        var pName = product.name.toLowerCase();
+                                        var room = category.toLowerCase();
+
+                                        if (room.indexOf("living") > -1) {
+                                            return pName.includes("bosnas");
+                                        } else if (room.indexOf("bedroom") > -1) {
+                                            return pName.includes("brimnes");
+                                        } else if (room.indexOf("study") > -1) {
+                                            return pName.includes("stadjan");
+                                        } else if (room.indexOf("kitchen") > -1) {
+                                            return pName.includes("antonius");
+                                        }
+                                        return true;
+                                    });
+
+                                    if (filteredData.length > 0) {
+                                        renderHotspots(category, filteredData);
+                                    } else {
+                                        console.log("No products left after filtering for: " + category);
+                                    }
+                                }
+                            })
+                            .catch(function (error) {
+                                console.error('Error fetching furniture:', error);
+                            });
+                    }
+
+                    function renderHotspots(category, products) {
+                        var hotspotContainer = document.getElementById("hotspotContainer");
+
+                        // Define static positions for demonstration purposes
+                        // In a real app, these might come from a DB or be mapped more precisely
+                        var positions = [];
+
+                        if (category.toLowerCase().indexOf("living") > -1) {
+                            positions = [
+                                { top: '65%', left: '50%' }, // Center sofa
+                                { top: '45%', left: '20%' }, // Left item
+                                { top: '55%', left: '80%' }  // Right item
+                            ];
+                        } else if (category.toLowerCase().indexOf("bedroom") > -1) {
+                            positions = [
+                                { top: '60%', left: '50%' }, // Bed
+                                { top: '45%', left: '15%' }, // Nightstand
+                                { top: '45%', left: '85%' }  // Lamp/Decor
+                            ];
+                        } else if (category.toLowerCase().indexOf("kitchen") > -1) {
+                            positions = [
+                                { top: '55%', left: '50%' },
+                                { top: '45%', left: '30%' },
+                                { top: '65%', left: '70%' }
+                            ];
+                        } else if (category.toLowerCase().indexOf("study") > -1) {
+                            positions = [
+                                { top: '40%', left: '50%' }, // On desk (adjusted higher)
+                                { top: '50%', left: '30%' },
+                                { top: '50%', left: '70%' }
+                            ];
+                        } else {
+                            // Default positions
+                            positions = [
+                                { top: '50%', left: '50%' },
+                                { top: '50%', left: '30%' },
+                                { top: '50%', left: '70%' }
+                            ];
+                        }
+
+                        // Take up to 3 products to match our positions
+                        var limit = Math.min(products.length, positions.length);
+
+                        for (var i = 0; i < limit; i++) {
+                            var product = products[i];
+                            var pos = positions[i];
+
+                            var hotspot = document.createElement('div');
+                            hotspot.className = 'hotspot';
+                            hotspot.style.top = pos.top;
+                            hotspot.style.left = pos.left;
+                            hotspot.style.pointerEvents = "auto"; // Ensure identifiable
+
+                            var tooltip = document.createElement('div');
+                            tooltip.className = 'product-tooltip';
+
+                            // Construct tooltip content
+                            // Check for dimensions
+                            var dimensions = "";
+                            if (product.height && product.length && product.width) {
+                                dimensions = product.height + '"H x ' + product.length + '"L x ' + product.width + '"W';
+                            }
+
+                            tooltip.innerHTML = `
+                                <span class="tooltip-title">Name: ${product.name}</span>
+                                <span class="tooltip-price">Price: $${product.price}</span>
+                                <span class="tooltip-desc">Dimensions: ${dimensions}</span>
+                                <span class="tooltip-sku">Ref: ${product.sku}</span>
+                            `;
+
+                            hotspot.appendChild(tooltip);
+                            hotspotContainer.appendChild(hotspot);
+                        }
+                    }
+                </script>
+
+                <hr class="tall" />
             </div>
-            <script src="../footer.js"></script>
         </div>
-    </body>
+        <script src="../footer.js"></script>
+    </div>
+</body>
+
 </html>
