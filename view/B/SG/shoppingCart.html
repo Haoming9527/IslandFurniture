@@ -36,82 +36,128 @@
         var finalPrice = 0;
         var stripeCustomer = null;
         var cardId = null;
-        document.addEventListener('DOMContentLoaded', function () {
-            memberEmail = sessionStorage.getItem('memberEmail');
-            //disable checkout button is shopping cart is empty
-            if (shoppingCart == null || shoppingCart == '') {
-                document.getElementById('btmDiv').innerHTML = '<div align="right" style="cursor: not-allowed;"><a><button disabled="true" class="btn btn-primary btn-lg">Check Out</button></a></div>';
-            }
-            else {
-                var htmlTxt = '';
-                for (i = 0; i < shoppingCart.length; i++) {
-                    var cartItem = shoppingCart[i];
-                    //generate html for cart items
-                    htmlTxt += '\
-                            <tr class="cart_table_item">\
-                                <td class="product-remove">\
-                                    <input type="checkbox" name="delete" value="' + cartItem.sku + '" />\
+        var promoMap = {};
+            document.addEventListener('DOMContentLoaded', function () {
+                memberEmail = sessionStorage.getItem('memberEmail');
+                
+            // Fetch promotions first
+            fetch('/api/getPromotions')
+                .then(response => response.json())
+                .then(promotions => {
+                    // Create a map for easy lookup: SKU -> { rate, desc }
+                    if (promotions && promotions.length > 0) {
+                            promotions.forEach(p => {
+                                if (p.sku) { // Ensure SKU exists
+                                    promoMap[p.sku] = {
+                                        rate: p.discountRate,
+                                        desc: p.description
+                                    };
+                                }
+                            });
+                        }
+                        renderCart(promoMap);
+                    })
+                    .catch(err => {
+                        console.error("Error fetching promotions", err);
+                        renderCart({}); // Render without discounts on error
+                    });
+
+                function renderCart(promoMap) {
+                    //disable checkout button if shopping cart is empty
+                    if (shoppingCart == null || shoppingCart == '' || shoppingCart.length == 0) {
+                        document.getElementById('btmDiv').innerHTML = '<div align="right" style="cursor: not-allowed;"><a><button disabled="true" class="btn btn-primary btn-lg">Check Out</button></a></div>';
+                        document.getElementById('cartBody').innerHTML = ''; // Clear table if empty
+                    }
+                    else {
+                        var htmlTxt = '';
+                        for (i = 0; i < shoppingCart.length; i++) {
+                            var cartItem = shoppingCart[i];
+                            
+                            // Calculate Price
+                            var originalPrice = parseFloat(cartItem.price);
+                            var currentPrice = originalPrice;
+                            var promoData = promoMap[cartItem.sku];
+                            var priceHtml = '$<span class="amount">' + originalPrice.toFixed(2) + '</span>';
+                            var promoHtml = '';
+
+                            if (promoData) {
+                                var discountRate = promoData.rate;
+                                var discountMultiplier = 1 - (discountRate / 100);
+                                currentPrice = originalPrice * discountMultiplier;
+                                priceHtml = '<span style="text-decoration: line-through; color: red;">$' + originalPrice.toFixed(2) + '</span> ' +
+                                            '<span style="font-weight: bold; color: green;">$' + currentPrice.toFixed(2) + '</span>';
+                                promoHtml = '<br><small style="color: green;">' + promoData.desc + ' - ' + discountRate + '%</small>';
+                            }
+
+                            //generate html for cart items
+                            htmlTxt += '\
+                                    <tr class="cart_table_item">\
+                                        <td class="product-remove">\
+                                            <input type="checkbox" name="delete" value="' + cartItem.sku + '" />\
+                                        </td>\
+                                        <td class="product-thumbnail">\
+                                            <a href="furnitureProductDetails.html?sku=' + cartItem.sku + '">\
+                                                <img width="100" height="100" alt="" class="img-responsive" src="' + cartItem.imgURL + '">\
+                                            </a>\
+                                        </td>\
+                                        <td class="product-name">\
+                                            <a class="productDetails" href="furnitureProductDetails.html?sku=' + cartItem.sku + '">' + cartItem.name + '</a>\
+                                            ' + promoHtml + '\
+                                        </td>\
+                                        <td class="product-price">\
+                                            ' + priceHtml + '\
+                                        </td>\
+                                        <td class="product-quantity">\
+                                            <form enctype="multipart/form-data" method="post" class="cart">\
+                                                <div class="quantity">\
+                                                    <input type="button" id="btnMinus" class="minus" value="-" onclick="minus(\'' + cartItem.sku + '\')">\
+                                                    <input type="text" disabled="true" class="input-text qty text" title="Qty" value="' + cartItem.quantity + '" name="quantity" min="1" step="1">\
+                                                    <input type="button" id="btnPlus" class="plus" value="+" onclick="plus(\'' + cartItem.id + '\', \'' + cartItem.sku + '\', \'' + cartItem.name + '\',\'' + cartItem.price + '\', \'' + cartItem.imgURL + '\')">\
+                                                </div>\
+                                            </form>\
+                                        </td>\
+                                        <td class="product-subtotal">\
+                                            $<span class="amount">' + (cartItem.quantity * currentPrice).toFixed(2) + '</span>\
+                                        </td>\
+                                    </tr>';
+                            finalPrice += cartItem.quantity * currentPrice;
+                        }
+                        htmlTxt +=
+                            '<tr id="discountRow" style="display:none;">\
+                                <td></td>\
+                                <td></td>\
+                                <td></td>\
+                                <td></td>\
+                                <td class="product-subtotal" style="font-weight: bold; color: green;" id="discountMsgLabel"></td>\
+                                <td class="product-subtotal" style="font-weight: bold; color: green;" id="discountMsgValue"></td>\
+                            </tr>';
+                        htmlTxt +=
+                            '<tr>\
+                                    <td></td>\
+                                    <td></td>\
+                                    <td></td>\
+                                    <td></td>\
+                                    <td class="product-subtotal" style="font-weight: bold">Total:</td>\
+                                    <td class="product-subtotal">\
+                                        $<span class="amount" id="finalPrice" name="finalPrice">\
+                                            ' + finalPrice.toFixed(2) + '\
+                                        </span>\
+                                    </td>\
+                                </tr>';
+                        htmlTxt +=
+                            '<tr>\
+                                <td colspan="3" style="text-align: left; padding-top: 15px;">\
+                                     <a href="#myModal" data-toggle="modal"><button id="btnRemove" class="btn btn-primary">Remove Item(s)</button></a>\
                                 </td>\
-                                <td class="product-thumbnail">\
-                                    <a href="furnitureProductDetails.html?sku=' + cartItem.sku + '">\
-                                        <img width="100" height="100" alt="" class="img-responsive" src="' + cartItem.imgURL + '">\
-                                    </a>\
-                                </td>\
-                                <td class="product-name">\
-                                    <a class="productDetails" href="furnitureProductDetails.html?sku=' + cartItem.sku + '">' + cartItem.name + '</a>\
-                                </td>\
-                                <td class="product-price">\
-                                    $<span class="amount">' + cartItem.price + '.00</span>\
-                                </td>\
-                                <td class="product-quantity">\
-                                    <form enctype="multipart/form-data" method="post" class="cart">\
-                                        <div class="quantity">\
-                                            <input type="button" id="btnMinus" class="minus" value="-" onclick="minus(\'' + cartItem.sku + '\')">\
-                                            <input type="text" disabled="true" class="input-text qty text" title="Qty" value="' + cartItem.quantity + '" name="quantity" min="1" step="1">\
-                                            <input type="button" id="btnPlus" class="plus" value="+" onclick="plus(\'' + cartItem.id + '\', \'' + cartItem.sku + '\', \'' + cartItem.name + '\',\'' + cartItem.price + '\', \'' + cartItem.imgURL + '\')">\
-                                        </div>\
-                                    </form>\
-                                </td>\
-                                <td class="product-subtotal">\
-                                    $<span class="amount">' + cartItem.quantity * cartItem.price + '.00</span>\
+                                <td colspan="3" style="text-align: right; padding-top: 15px;">\
+                                     <a href="#checkoutModal" data-toggle="modal"><button id="btnCheckout" class="btn btn-primary btn-lg">Check Out</button></a>\
                                 </td>\
                             </tr>';
-                    finalPrice += cartItem.quantity * cartItem.price;
+                        document.getElementById('cartBody').innerHTML = htmlTxt;
+                        document.getElementById('btmDiv').innerHTML = '';
+                    }
                 }
-                htmlTxt +=
-                    '<tr id="discountRow" style="display:none;">\
-                        <td></td>\
-                        <td></td>\
-                        <td></td>\
-                        <td></td>\
-                        <td class="product-subtotal" style="font-weight: bold; color: green;" id="discountMsgLabel"></td>\
-                        <td class="product-subtotal" style="font-weight: bold; color: green;" id="discountMsgValue"></td>\
-                    </tr>';
-                htmlTxt +=
-                    '<tr>\
-                            <td></td>\
-                            <td></td>\
-                            <td></td>\
-                            <td></td>\
-                            <td class="product-subtotal" style="font-weight: bold">Total:</td>\
-                            <td class="product-subtotal">\
-                                $<span class="amount" id="finalPrice" name="finalPrice">\
-                                    ' + finalPrice + '.00\
-                                </span>\
-                            </td>\
-                        </tr>';
-                htmlTxt +=
-                    '<tr>\
-                        <td colspan="3" style="text-align: left; padding-top: 15px;">\
-                             <a href="#myModal" data-toggle="modal"><button id="btnRemove" class="btn btn-primary">Remove Item(s)</button></a>\
-                        </td>\
-                        <td colspan="3" style="text-align: right; padding-top: 15px;">\
-                             <a href="#checkoutModal" data-toggle="modal"><button id="btnCheckout" class="btn btn-primary btn-lg">Check Out</button></a>\
-                        </td>\
-                    </tr>';
-                document.getElementById('cartBody').innerHTML = htmlTxt;
-                document.getElementById('btmDiv').innerHTML = '';
-            }
+
 
             fetch(new Request('/api/getStripeCustomer?email=' + memberEmail,
                 {
@@ -709,23 +755,33 @@
                         msgDiv.innerHTML = '<span style="color: green;">Promotion code applied! ' + data.promotion.description + '</span>';
 
                         // Calculate fresh total from shoppingCart array to avoid compounding discounts
-                        var originalTotal = 0;
+                        // Use getItemDiscountedPrice logic (stacking on top of item discounts)
+                        var currentTotal = 0;
                         if (shoppingCart && shoppingCart.length > 0) {
                             for (var i = 0; i < shoppingCart.length; i++) {
-                                originalTotal += shoppingCart[i].quantity * shoppingCart[i].price;
+                                var itemPrice = parseFloat(shoppingCart[i].price); // Base price
+                                var sku = shoppingCart[i].sku;
+                                
+                                // Apply Item-level promotion if exists
+                                if (promoMap && promoMap[sku]) {
+                                    var itemRate = promoMap[sku].rate;
+                                    itemPrice = itemPrice * (1 - itemRate / 100);
+                                }
+                                
+                                currentTotal += shoppingCart[i].quantity * itemPrice;
                             }
                         }
 
                         // Apply discount
                         var discountRate = data.promotion.discountRate; // e.g. 10
-                        var discountedTotal = originalTotal * (1 - discountRate / 100);
+                        var discountedTotal = currentTotal * (1 - discountRate / 100);
 
                         // Update global finalPrice so payment uses the discounted amount
                         finalPrice = discountedTotal;
 
                         // Update UI with strikethrough
                         var priceElement = document.getElementById('finalPrice');
-                        priceElement.innerHTML = '<span style="text-decoration: line-through; color: red;">$' + originalTotal.toFixed(2) + '</span> ' +
+                        priceElement.innerHTML = '<span style="text-decoration: line-through; color: red;">$' + currentTotal.toFixed(2) + '</span> ' +
                             '<span style="font-weight: bold; color: green;">$' + discountedTotal.toFixed(2) + '</span>';
 
                         // Show discount message row
