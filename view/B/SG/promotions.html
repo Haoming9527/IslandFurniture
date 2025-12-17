@@ -1,0 +1,78 @@
+<script src="../checkCountry.js"></script>
+<html>
+<script src="../../header.js"></script>
+
+<body>
+    <div class="body">
+        <script src="menu2.js"></script>
+        <div role="main" class="main">
+            <section class="page-top">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h2>Promotions</h2>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2>Current <strong>Deals</strong></h2>
+                        <p class="lead">Check out our latest offers!</p>
+                    </div>
+                </div>
+
+                <hr class="tall" />
+
+                <div class="row" id="promotionsContainer">
+                    <!-- Promotions will be loaded here -->
+                </div>
+
+            </div>
+        </div>
+        <script src="../footer.js"></script>
+    </div>
+
+    <script>
+        fetch('/api/getPromotions')
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                var container = document.getElementById('promotionsContainer');
+                if (data && data.length > 0) {
+                    data.forEach(function (promo) {
+                        var html = `
+                            <div class="col-md-6">
+                                <div class="featured-box featured-box-primary featured-box-effect-1" style="height: 100%; cursor: pointer;" onclick="window.location.href='furnitureProductDetails.html?sku=${promo.sku}'">
+                                    <div class="box-content">
+                                        <div style="position: relative;">
+                                            <img src="${promo.imageURL}" class="img-responsive" style="width: 100%; height: 300px; object-fit: cover; margin-bottom: 15px;" alt="${promo.title}">
+                                            <div style="position: absolute; top: 10px; right: 10px; background-color: #d2322d; color: white; padding: 5px 10px; font-weight: bold; border-radius: 3px;">
+                                                ${promo.discountRate}% OFF
+                                            </div>
+                                        </div>
+                                        <h4 class="text-uppercase">${promo.title}</h4>
+                                        <p>${promo.description}</p>
+                                        <p class="text-primary" style="font-weight: bold;">
+                                            Valid: ${new Date(promo.startDate).toLocaleDateString()} - ${new Date(promo.endDate).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        container.innerHTML += html;
+                    });
+                } else {
+                    container.innerHTML = '<div class="col-md-12"><p>No active promotions at the moment.</p></div>';
+                }
+            })
+            .catch(function (error) {
+                console.error('Error fetching promotions:', error);
+                document.getElementById('promotionsContainer').innerHTML = '<div class="col-md-12"><p>Error loading promotions.</p></div>';
+            });
+    </script>
+</body>
+
+</html>

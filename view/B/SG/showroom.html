@@ -225,7 +225,8 @@
                         opacity: 0;
                         visibility: hidden;
                         transition: all 0.3s ease;
-                        pointer-events: none;
+                        pointer-events: auto;
+                        cursor: pointer;
                         z-index: 101;
                         text-align: left;
                         color: #333;
@@ -490,6 +491,12 @@
                             hotspot.style.top = pos.top;
                             hotspot.style.left = pos.left;
                             hotspot.style.pointerEvents = "auto"; // Ensure identifiable
+
+                            // Store SKU and add click event
+                            hotspot.dataset.sku = product.sku;
+                            hotspot.onclick = function() {
+                                window.location.href = 'furnitureProductDetails.html?sku=' + this.dataset.sku;
+                            };
 
                             var tooltip = document.createElement('div');
                             tooltip.className = 'product-tooltip';
