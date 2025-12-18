@@ -45,4 +45,20 @@ app.get('/api/promotion/:code', function (req, res) {
         });
 });
 
+app.get('/api/getMinorPromotions', function (req, res) {
+    var countryId = req.query.countryId;
+    if (!countryId) {
+        res.status(400).send("Country ID is required");
+        return;
+    }
+    promotion.getMinorPromotions(countryId)
+        .then((result) => {
+            res.send(result);
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Failed to get minor promotions");
+        });
+});
+
 module.exports = app;
