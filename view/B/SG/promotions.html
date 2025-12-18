@@ -48,13 +48,12 @@
                                 <div class="featured-box featured-box-primary featured-box-effect-1" style="height: 100%; cursor: pointer;" onclick="window.location.href='furnitureProductDetails.html?sku=${promo.sku}'">
                                     <div class="box-content">
                                         <div style="position: relative;">
-                                            <img src="${promo.imageURL}" class="img-responsive" style="width: 100%; height: 200px !important; max-height: 200px !important; object-fit: cover; margin-bottom: 15px;" alt="${promo.title}">
+                                            <img src="${promo.imageURL}" class="img-responsive" style="width: 100%; height: 200px !important; max-height: 200px !important; object-fit: cover; margin-bottom: 15px;" alt="${promo.description}">
                                             <div style="position: absolute; top: 10px; right: 10px; background-color: #d2322d; color: white; padding: 5px 10px; font-weight: bold; border-radius: 3px;">
                                                 ${promo.discountRate}% OFF
                                             </div>
                                         </div>
-                                        <h4 class="text-uppercase">${promo.title}</h4>
-                                        <p>${promo.description}</p>
+                                        <h4 class="text-uppercase">${promo.description}</h4>
                                         <p class="text-primary" style="font-weight: bold;">
                                             Valid: ${new Date(promo.startDate).toLocaleDateString()} - ${new Date(promo.endDate).toLocaleDateString()}
                                         </p>

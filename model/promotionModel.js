@@ -12,11 +12,10 @@ var promotionDB = {
                     return reject(err);
                 }
                 else {
-                    var sql = 'SELECT p.ID, p.DESCRIPTION, p.DISCOUNTRATE, p.STARTDATE, p.ENDDATE, f.IMAGEURL, i.NAME, i.SKU ' +
+                    var sql = 'SELECT p.ID, p.DESCRIPTION, p.DISCOUNTRATE, p.STARTDATE, p.ENDDATE, p.IMAGEURL, i.SKU ' +
                         'FROM promotionentity p ' +
                         'LEFT JOIN itementity i ON p.ITEM_ID = i.ID ' +
-                        'LEFT JOIN furnitureentity f ON p.ITEM_ID = f.ID ' +
-                        'ORDER BY p.DISCOUNTRATE DESC LIMIT 2';
+                        'ORDER BY p.DISCOUNTRATE DESC';
                     conn.query(sql, function (err, result) {
                         if (err) {
                             conn.end();
@@ -26,7 +25,6 @@ var promotionDB = {
                             for (var i = 0; i < result.length; i++) {
                                 var promo = {
                                     id: result[i].ID,
-                                    title: result[i].NAME,
                                     description: result[i].DESCRIPTION,
                                     discountRate: result[i].DISCOUNTRATE,
                                     startDate: result[i].STARTDATE,
