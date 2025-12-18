@@ -91,7 +91,9 @@
                                 <div class="col-md-4 col-sm-6">
                                     <div class="featured-box featured-box-secundary featured-box-effect-1" style="margin-bottom: 20px;">
                                         <div class="box-content" style="padding: 20px; text-align: left;">
-                                            <h4 class="text-uppercase" style="margin-bottom: 5px; color: #d2322d;">${promo.discountRate}% OFF</h4>
+                                            <h4 class="text-uppercase" style="margin-bottom: 5px; color: #d2322d;">
+                                                ${promo.type === 'fixed' ? '$' + promo.discountRate : promo.discountRate + '%'} OFF
+                                            </h4>
                                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: #f5f5f5; padding: 5px 10px; border-radius: 4px;">
                                                 <strong style="font-size: 1.2em; letter-spacing: 1px;">${promo.promoCode}</strong>
                                                 <button class="btn btn-xs btn-primary" onclick="copyToClipboard('${promo.promoCode}')" title="Copy Code">

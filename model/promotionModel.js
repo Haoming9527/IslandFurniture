@@ -70,6 +70,7 @@ var promotionDB = {
                                 promo.endDate = result[0].ENDDATE;
                                 promo.countryId = result[0].COUNTRY_ID;
                                 promo.itemId = result[0].ITEM_ID;
+                                promo.type = result[0].TYPE;
                                 conn.end();
                                 return resolve(promo);
                             } else {
@@ -106,7 +107,8 @@ var promotionDB = {
                                     promoCode: result[i].PROMOCODE,
                                     discountRate: result[i].DISCOUNTRATE,
                                     startDate: result[i].STARTDATE,
-                                    endDate: result[i].ENDDATE
+                                    endDate: result[i].ENDDATE,
+                                    type: result[i].TYPE
                                 };
                                 promotions.push(promo);
                             }

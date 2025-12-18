@@ -773,8 +773,15 @@
                         }
 
                         // Apply discount
-                        var discountRate = data.promotion.discountRate; // e.g. 10
-                        var discountedTotal = currentTotal * (1 - discountRate / 100);
+                        var discountRate = data.promotion.discountRate; // e.g. 10 or 5
+                        var discountType = data.promotion.type;
+                        var discountedTotal = currentTotal;
+
+                        if (discountType === 'fixed') {
+                            discountedTotal = Math.max(0, currentTotal - discountRate);
+                        } else {
+                            discountedTotal = currentTotal * (1 - discountRate / 100);
+                        }
 
                         // Update global finalPrice so payment uses the discounted amount
                         finalPrice = discountedTotal;
@@ -787,7 +794,7 @@
                         // Show discount message row
                         document.getElementById('discountRow').style.display = 'table-row';
                         document.getElementById('discountMsgLabel').innerHTML = 'Discount Code ' + data.promotion.promoCode + ' Applied!';
-                        document.getElementById('discountMsgValue').innerHTML = discountRate + '% Off';
+                        document.getElementById('discountMsgValue').innerHTML = discountType === 'fixed' ? '$' + discountRate + ' Off' : discountRate + '% Off';
 
                     } else {
                         if (data.message && data.message.toLowerCase().includes('expired')) {

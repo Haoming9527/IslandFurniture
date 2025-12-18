@@ -8,6 +8,7 @@ class Promotion {
         this.endDate = null;
         this.countryId = null;
         this.itemId = null;
+        this.type = null;
     }
 }
 module.exports = Promotion;
