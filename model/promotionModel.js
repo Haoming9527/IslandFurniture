@@ -69,7 +69,6 @@ var promotionDB = {
                                 promo.startDate = result[0].STARTDATE;
                                 promo.endDate = result[0].ENDDATE;
                                 promo.countryId = result[0].COUNTRY_ID;
-                                promo.itemId = result[0].ITEM_ID;
                                 promo.type = result[0].TYPE;
                                 conn.end();
                                 return resolve(promo);

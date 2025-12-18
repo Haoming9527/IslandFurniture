@@ -7,7 +7,6 @@ class Promotion {
         this.startDate = null;
         this.endDate = null;
         this.countryId = null;
-        this.itemId = null;
         this.type = null;
     }
 }
