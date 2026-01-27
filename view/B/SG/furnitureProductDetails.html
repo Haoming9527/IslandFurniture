@@ -20,6 +20,12 @@
                 }).then(function (furniture) {
                     //set furniture details
                     document.getElementById("imgFurniture").setAttribute('src', furniture.imageURL);
+                    document.getElementById("furnitureName").innerHTML = furniture.name;
+                    document.getElementById("price").innerHTML = 'Price: $' + furniture.price + '.00';
+                    document.getElementById("description").innerHTML = furniture.description;
+                    document.getElementById("furnitureInfo").innerHTML = 'Height: ' + furniture.height + '<br/>' +
+                        'Length: ' + furniture.length + '<br/>' +
+                        'Width: ' + furniture.width;
                 
                     if(memberEmail != null && memberEmail != '') {
                         document.getElementById("addToCartBtn").innerHTML = '<button class="btn btn-primary" onclick="addToCart(\''

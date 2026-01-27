@@ -126,7 +126,7 @@ var storeDB = {
                     var sql = 'SELECT sum(l.QUANTITY) as sum FROM storeentity s, warehouseentity w,'
                         + ' storagebinentity sb, storagebinentity_lineitementity sbli, lineitementity l, itementity i'
                         + ' where s.WAREHOUSE_ID=w.ID and w.ID=sb.WAREHOUSE_ID and sb.ID=sbli.StorageBinEntity_ID'
-                        + ' and sbli.lineItems_ID=l.ID and l.ITEM_ID=i.ID and i.ID=? and s.ID='
+                        + ' and sbli.lineItems_ID=l.ID and l.ITEM_ID=i.ID and i.ID=? and s.ID IN'
                         + ' (SELECT ID FROM storeentity WHERE NAME=?) and sb.TYPE = "Outbound"';
                     conn.query(sql, [itemId, storeName], function (err, result) {
                         if (err) {
@@ -152,8 +152,8 @@ var storeDB = {
                 }
                 else {
                     var sql = 'UPDATE lineitementity SET QUANTITY=? WHERE ITEM_ID=? AND ID IN '
-                        + '(SELECT lineItems_ID FROM storagebinentity_lineitementity WHERE StorageBinEntity_ID = '
-                        + '(SELECT ID FROM storagebinentity WHERE TYPE = "Outbound" AND WAREHOUSE_ID = '
+                        + '(SELECT lineItems_ID FROM storagebinentity_lineitementity WHERE StorageBinEntity_ID IN '
+                        + '(SELECT ID FROM storagebinentity WHERE TYPE = "Outbound" AND WAREHOUSE_ID IN '
                         + '(SELECT WAREHOUSE_ID FROM storeentity WHERE NAME = ?)))';
                     conn.query(sql, [data.qty,data.itemId,data.storeName], function (err, result) {
                         if (err) {
