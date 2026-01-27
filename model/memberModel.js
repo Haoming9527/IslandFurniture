@@ -142,13 +142,19 @@ var memberDB = {
                     return reject(err);
                 }
                 else {
-                    var sql = "SELECT i.SKU,i.NAME as 'ITEM_NAME',ic.RETAILPRICE,li.QUANTITY,sr.CREATEDDATE,f.IMAGEURL,sr.ID,"
-                        + " d.NAME, d.DELIVERY_ADDRESS, d.POSTAL_CODE, d.CONTACT"
-                        + " FROM itementity i,item_countryentity ic,lineitementity li,salesrecordentity sr,"
-                        + " salesrecordentity_lineitementity sl,furnitureentity f, deliverydetailsentity d"
-                        + " WHERE sr.MEMBER_ID=? AND d.SALERECORD_ID = sr.id AND i.ID=ic.ITEM_ID AND"
-                        + " ic.COUNTRY_ID=25 AND li.ITEM_ID=i.ID AND sr.ID=sl.SalesRecordEntity_ID AND"
-                        + " li.ID=sl.itemsPurchased_ID AND f.ID=i.ID";
+                    //================Edited code for sales history============
+                    var sql = "SELECT i.SKU, i.NAME AS \"ITEM_NAME\", ic.RETAILPRICE, li.QUANTITY, sr.CREATEDDATE, "
+                        + "COALESCE(f.IMAGEURL, r.IMAGEURL) AS IMAGEURL, sr.ID, d.NAME, d.DELIVERY_ADDRESS, "
+                        + "d.POSTAL_CODE, d.CONTACT "
+                        + "FROM salesrecordentity sr "
+                        + "JOIN salesrecordentity_lineitementity sl ON sr.ID = sl.SalesRecordEntity_ID "
+                        + "JOIN lineitementity li ON li.ID = sl.itemsPurchased_ID "
+                        + "JOIN itementity i ON i.ID = li.ITEM_ID "
+                        + "JOIN item_countryentity ic ON ic.ITEM_ID = i.ID "
+                        + "JOIN deliverydetailsentity d ON d.SALERECORD_ID = sr.ID "
+                        + "LEFT JOIN furnitureentity f ON f.ID = i.ID "
+                        + "LEFT JOIN retailproductentity r ON r.ID = i.ID "
+                        + "WHERE sr.MEMBER_ID = ? AND ic.COUNTRY_ID = 25";
                     conn.query(sql, [id], function (err, result) {
                         if (err) {
                             conn.end();
@@ -174,6 +180,7 @@ var memberDB = {
                             return resolve(itemList);
                         }
                     });
+                    //=======================
                 }
             });
         });
