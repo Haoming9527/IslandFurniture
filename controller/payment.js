@@ -76,7 +76,7 @@ app.post('/api/processPaymentNewCard', [middleware.checkToken, jsonParser], func
     }
 
     stripe.charges.create({
-        amount: price * 100,
+        amount: Math.round(price * 100),
         currency: "sgd",
         description: "Island Furniture Purchase",
         source: 'tok_visa'
@@ -85,7 +85,7 @@ app.post('/api/processPaymentNewCard', [middleware.checkToken, jsonParser], func
             var data = {
                 memberId: memberId,
                 email: email,
-                price: price,
+                price: parseFloat(price).toFixed(2),
                 shoppingCart: req.body.shoppingCart,
                 name: req.body.name,
                 phone: req.body.phone,
@@ -112,7 +112,7 @@ app.post('/api/processPaymentExistingCard', [middleware.checkToken, jsonParser],
         function(err, customer) {
             if (err == null || err == '') {
                 stripe.charges.create({
-                    amount: price * 100,
+                    amount: Math.round(price * 100),
                     currency: "sgd",
                     description: "Island Furniture Purchase",
                     customer: customer.id,
@@ -122,7 +122,7 @@ app.post('/api/processPaymentExistingCard', [middleware.checkToken, jsonParser],
                         var data = {
                             memberId: memberId,
                             email: email,
-                            price: price,
+                            price: parseFloat(price).toFixed(2),
                             shoppingCart: req.body.shoppingCart,
                             name: req.body.name,
                             phone: req.body.phone,

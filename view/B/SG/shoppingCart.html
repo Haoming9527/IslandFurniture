@@ -285,7 +285,7 @@
                     var paymentData = {
                         memberId: member.id,
                         email: memberEmail,
-                        price: finalPrice,
+                        price: parseFloat(finalPrice).toFixed(2),
                         shoppingCart: shoppingCart,
                         name: name,
                         phone: contactNum,
