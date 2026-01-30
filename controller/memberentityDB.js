@@ -80,6 +80,16 @@ var jsonParser = bodyParser.json({ extended: false });
 app.post('/api/loginMember', jsonParser, function (req, res) {
     var email = req.body.email;
     var password = req.body.password;
+
+    if (!email || !password || email.trim() === "" || password.trim() === "") {
+        return res.status(400).send({ success: false, message: "Email and password are required." });
+    }
+
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).send({ success: false, message: "Invalid email format." });
+    }
+
     member.checkMemberLogin(email, password)
         .then((result) => {
             res.send(result);
